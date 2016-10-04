@@ -88,26 +88,26 @@ const winner = b => {
 
 drawBoard(boardState)
 
-table.addEventListener('click', e => {
-	const col = e.target.cellIndex
-	const row = e.target.closest('tr').rowIndex
+board.addEventListener('click', evt => {
+  const col = evt.target.cellIndex
+  const row = evt.target.closest('tr').rowIndex
 
-	if(boardState[row][col]) {
-		return console.log('Cannot move there')
-	}
+  if (boardState[row][col]) {
+    return console.log('Cannot move there')
+  }
 
-	if (winner(boardState)) {
-		return console.log('Game is over!')
-	}
+  if (winner(boardState)) {
+    return console.log('Game is over!')
+  }
 
-	boardState[row][col] = nextPlayer
-	drawBoard(boardState)
-	console.log('You clicked on :', row, col)
+  boardState[row][col] = nextPlayer
+  drawBoard(boardState)
+  console.log('Current game state:', board)
 
-	if (winner(boardState)) {
+  if (winner(boardState)) {
     return status.innerText = `${nextPlayer} WON!`
   }
 
-	nextPlayer = nextPlayer === 'X' ? 'O' : 'X'
-	status.innerText = `${nextPlayer}'s Turn!`
+  nextPlayer = nextPlayer === 'X' ? 'O' : 'X'
+  status.innerText = `${nextPlayer}'s Turn`
 })
