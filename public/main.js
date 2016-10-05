@@ -11,8 +11,6 @@ const boardState = [
 	['','','']
 ]
 
-let nextPlayer = 'X'
-
 const renderStatus = game => {
   status.innerText = game.result
     ? `${game.result} WON!`
@@ -47,13 +45,7 @@ const renderBoard = (game) => {
 board.addEventListener('click', evt => {
   const col = evt.target.cellIndex
   const row = evt.target.closest('tr').rowIndex
-
   socket.emit('make move', { row, col })
-
-  boardState[row][col] = nextPlayer
-  console.log('Current game state:', board)
-
-  nextPlayer = nextPlayer === 'X' ? 'O' : 'X'
 })
 
 const render = game => {
