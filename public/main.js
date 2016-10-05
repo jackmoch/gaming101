@@ -10,6 +10,12 @@ socket.on('disconnect', () => {
 	console.log(`Socket disconnected`)
 })
 
+socket.on('error', console.error)
+
+socket.on('new game', (game) => {
+  drawBoard(game.board)
+})
+
 const table = document.querySelector('.board')
 const status = document.querySelector('.status')
 
@@ -86,7 +92,7 @@ const winner = b => {
   }
 }
 
-drawBoard(boardState)
+// drawBoard(boardState)
 
 board.addEventListener('click', evt => {
   const col = evt.target.cellIndex
