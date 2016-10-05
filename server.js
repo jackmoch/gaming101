@@ -58,38 +58,38 @@ io.on('connect', (socket) => {
 })
 
 const nextMove = (move, socket) => {
-    if (isFinished(socket.game) || !isSpaceAvailable(socket.game, move)) {
-      return
-    }
+	if (isFinished(socket.game) || !isSpaceAvailable(socket.game, move)) {
+		return
+	}
 
-    Promise.resolve()
-      .then(() => setMove(socket.game, move))
-      .then(toggleNextMove)
-      .then(setResult)
-      .then(g => g.save())
-      .then(g => socket.emit('move made', g))
+	Promise.resolve()
+		.then(() => setMove(socket.game, move))
+		.then(toggleNextMove)
+		.then(setResult)
+		.then(g => g.save())
+		.then(g => socket.emit('move made', g))
 }
 
 const isFinished = game => !!game.result
 const isSpaceAvailable = (game, move) => !game.board[move.row][move.col]
 const setMove = (game, move) => {
-  game.board[move.row][move.col] = game.nextMove
-  game.markModified('board') // trigger mongoose change detection
-  return game
+	game.board[move.row][move.col] = game.nextMove
+	game.markModified('board') // trigger mongoose change detection
+	return game
 }
 const toggleNextMove = game => {
-  game.nextMove = game.nextMove === 'X' ? 'O' : 'X'
-  return game
+	game.nextMove = game.nextMove === 'X' ? 'O' : 'X'
+	return game
 }
 const setResult = game => {
-  const result = winner(game.board)
+	const result = winner(game.board)
 
-  if (result) {
-    game.nextMove = undefined // mongoose equivalent to: `delete socket.game.nextMove`
-    game.result = result
-  }
+	if (result) {
+		game.nextMove = undefined // mongoose equivalent to: `delete socket.game.nextMove`
+		game.result = result
+	}
 
-  return game
+	return game
 }
 
 const movesRemaining = (game) => {
@@ -100,43 +100,43 @@ const movesRemaining = (game) => {
 }
 
 const winner = b => {
-  // Rows
-  if (b[0][0] && b[0][0] === b[0][1] && b[0][1] === b[0][2]) {
-    return b[0][0]
-  }
+	// Rows
+	if (b[0][0] && b[0][0] === b[0][1] && b[0][1] === b[0][2]) {
+		return b[0][0]
+	}
 
-  if (b[1][0] && b[1][0] === b[1][1] && b[1][1] === b[1][2]) {
-    return b[1][0]
-  }
+	if (b[1][0] && b[1][0] === b[1][1] && b[1][1] === b[1][2]) {
+		return b[1][0]
+	}
 
-  if (b[2][0] && b[2][0] === b[2][1] && b[2][1] === b[2][2]) {
-    return b[2][0]
-  }
+	if (b[2][0] && b[2][0] === b[2][1] && b[2][1] === b[2][2]) {
+		return b[2][0]
+	}
 
-  // Cols
-  if (b[0][0] && b[0][0] === b[1][0] && b[1][0] === b[2][0]) {
-    return b[0][0]
-  }
+	// Cols
+	if (b[0][0] && b[0][0] === b[1][0] && b[1][0] === b[2][0]) {
+		return b[0][0]
+	}
 
-  if (b[0][1] && b[0][1] === b[1][1] && b[1][1] === b[2][1]) {
-    return b[0][1]
-  }
+	if (b[0][1] && b[0][1] === b[1][1] && b[1][1] === b[2][1]) {
+		return b[0][1]
+	}
 
-  if (b[0][2] && b[0][2] === b[1][2] && b[1][2] === b[2][2]) {
-    return b[0][2]
-  }
+	if (b[0][2] && b[0][2] === b[1][2] && b[1][2] === b[2][2]) {
+		return b[0][2]
+	}
 
-  // Diags
-  if (b[0][0] && b[0][0] === b[1][1] && b[1][1] === b[2][2]) {
-    return b[0][0]
-  }
+	// Diags
+	if (b[0][0] && b[0][0] === b[1][1] && b[1][1] === b[2][2]) {
+		return b[0][0]
+	}
 
-  if (b[0][2] && b[0][2] === b[1][1] && b[1][1] === b[2][0]) {
-    return b[0][2]
-  }
+	if (b[0][2] && b[0][2] === b[1][1] && b[1][1] === b[2][0]) {
+		return b[0][2]
+	}
 
-  // Tie or In-Progress
-  else {
-    return null
-  }
+	// Tie or In-Progress
+	else {
+		return null
+	}
 }
