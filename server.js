@@ -25,7 +25,7 @@ app.get('/game', (req, res) => {
 app.get('/game/create', (req, res) => {
   Game.create({
     board: [['','',''],['','',''],['','','']],
-    toMove: 'X',
+    nextMove: 'X',
   })
   .then(game => res.redirect(`/game/${game._id}`))
 })
@@ -49,12 +49,12 @@ const Game = mongoose.model('Game', {
 })
 
 io.on('connect', (socket) => {
-	Game.create({
-		board: [['', '', ''],['', '', ''],['', '', '']],
-		nextMove: 'X'
-	})
+	const id = socket.handshake.headers.referer.split('/').slice(-1)[0]
+
+	Game.findById(id)
 	.then((game) => {
-		socket.game = game
+		socket.join(game._id)
+		socket.gameId = game._id
 		socket.emit('new game', game)
 	})
 	.catch((err) => {
@@ -71,16 +71,21 @@ io.on('connect', (socket) => {
 })
 
 const nextMove = (move, socket) => {
-	if (isFinished(socket.game) || !isSpaceAvailable(socket.game, move)) {
-		return
-	}
 
-	Promise.resolve()
-		.then(() => setMove(socket.game, move))
-		.then(toggleNextMove)
-		.then(setResult)
-		.then(g => g.save())
-		.then(g => socket.emit('move made', g))
+	Game.findById(socket.gameId)
+		.then(game => {
+			if (isFinished(game) || !isSpaceAvailable(game, move)) {
+				return
+			}
+
+			Promise.resolve()
+				.then(() => setMove(game, move))
+				.then(toggleNextMove)
+				.then(setResult)
+				.then(g => g.save())
+				.then(g => io.to(game._id).emit('move made', g))
+		})
+
 }
 
 const isFinished = game => !!game.result
