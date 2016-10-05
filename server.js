@@ -50,9 +50,19 @@ io.on('connect', (socket) => {
 	})
 
 	socket.on('make move', ({ row, col }) => {
+		if(socket.game.result) {
+			return
+		}
 		socket.game.board[row][col] = socket.game.nextMove
 		socket.game.nextMove = socket.game.nextMove === 'X' ? 'O' : 'X'
 		socket.game.markModified('board') //mongoose method to let db know the array changed
+		const result = winner(socket.game.board)
+
+		if(result) {
+			socket.game.nextMove = undefined
+			socket.game.result = result
+		}
+
 		socket.game.save().then((game) => {
 			socket.emit('move made', game)
 		})
@@ -63,3 +73,45 @@ io.on('connect', (socket) => {
 		console.log(`Socketed disconnected: ${socket.id}`)
 	})
 })
+
+const winner = b => {
+  // Rows
+  if (b[0][0] && b[0][0] === b[0][1] && b[0][1] === b[0][2]) {
+    return b[0][0]
+  }
+
+  if (b[1][0] && b[1][0] === b[1][1] && b[1][1] === b[1][2]) {
+    return b[1][0]
+  }
+
+  if (b[2][0] && b[2][0] === b[2][1] && b[2][1] === b[2][2]) {
+    return b[2][0]
+  }
+
+  // Cols
+  if (b[0][0] && b[0][0] === b[1][0] && b[1][0] === b[2][0]) {
+    return b[0][0]
+  }
+
+  if (b[0][1] && b[0][1] === b[1][1] && b[1][1] === b[2][1]) {
+    return b[0][1]
+  }
+
+  if (b[0][2] && b[0][2] === b[1][2] && b[1][2] === b[2][2]) {
+    return b[0][2]
+  }
+
+  // Diags
+  if (b[0][0] && b[0][0] === b[1][1] && b[1][1] === b[2][2]) {
+    return b[0][0]
+  }
+
+  if (b[0][2] && b[0][2] === b[1][1] && b[1][1] === b[2][0]) {
+    return b[0][2]
+  }
+
+  // Tie or In-Progress
+  else {
+    return null
+  }
+}
