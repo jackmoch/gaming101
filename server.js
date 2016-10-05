@@ -37,15 +37,22 @@ io.on('connect', (socket) => {
 	Game.create({
 		board: [['', '', ''],['', '', ''],['', '', '']]
 	})
-	.then((g) => {
-		socket.game = g
-		socket.emit('new game', g)
+	.then((game) => {
+		socket.game = game
+		socket.emit('new game', game)
 	})
 	.catch((err) => {
 		socket.emit('error', err)
 		console.error(err)
 	})
 
+	socket.on('make move', ({ row, col }) => {
+		socket.game.board[row][col] = 'X'
+		socket.game.markModified('board') //mongoose method to let db know the array changed
+		socket.game.save().then((game) => {
+			socket.emit('move made', game)
+		})
+	})
 
 	console.log(`Socket connected: ${socket.id}`)
 	socket.on('disconnect', () => {
