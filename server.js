@@ -30,12 +30,14 @@ const Game = mongoose.model('Game', {
 		[String, String, String],
 		[String, String, String],
 		[String, String, String],
-	]
+	],
+	nextMove: String
 })
 
 io.on('connect', (socket) => {
 	Game.create({
-		board: [['', '', ''],['', '', ''],['', '', '']]
+		board: [['', '', ''],['', '', ''],['', '', '']],
+		nextMove: 'X'
 	})
 	.then((game) => {
 		socket.game = game
@@ -47,7 +49,8 @@ io.on('connect', (socket) => {
 	})
 
 	socket.on('make move', ({ row, col }) => {
-		socket.game.board[row][col] = 'X'
+		socket.game.board[row][col] = socket.game.nextMove
+		socket.game.nextMove = socket.game.nextMove === 'X' ? 'O' : 'X'
 		socket.game.markModified('board') //mongoose method to let db know the array changed
 		socket.game.save().then((game) => {
 			socket.emit('move made', game)
