@@ -48,10 +48,6 @@ board.addEventListener('click', evt => {
   const col = evt.target.cellIndex
   const row = evt.target.closest('tr').rowIndex
 
-  if (boardState[row][col]) {
-    return console.log('Cannot move there')
-  }
-
   socket.emit('make move', { row, col })
 
   boardState[row][col] = nextPlayer
