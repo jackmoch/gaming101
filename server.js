@@ -53,6 +53,11 @@ io.on('connect', (socket) => {
 		if(socket.game.result) {
 			return
 		}
+
+		if (socket.game.board[row][col]) {
+    	return
+  	}
+
 		socket.game.board[row][col] = socket.game.nextMove
 		socket.game.nextMove = socket.game.nextMove === 'X' ? 'O' : 'X'
 		socket.game.markModified('board') //mongoose method to let db know the array changed
