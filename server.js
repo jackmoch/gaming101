@@ -23,11 +23,14 @@ app.get('/game', (req, res) => {
 	Game.find().then(games => res.render('index', {games}))
 })
 app.get('/game/create', (req, res) => {
-	// create game and redirect
-	// res.redirect()
+  Game.create({
+    board: [['','',''],['','',''],['','','']],
+    toMove: 'X',
+  })
+  .then(game => res.redirect(`/game/${game._id}`))
 })
 app.get('/game/:id', (req, res) => {
-
+	res.render('game')
 })
 
 mongoose.Promise = Promise
