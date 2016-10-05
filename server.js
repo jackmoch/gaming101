@@ -49,35 +49,55 @@ io.on('connect', (socket) => {
 		console.error(err)
 	})
 
-	socket.on('make move', ({ row, col }) => {
-		if(socket.game.result) {
-			return
-		}
-
-		if (socket.game.board[row][col]) {
-    	return
-  	}
-
-		socket.game.board[row][col] = socket.game.nextMove
-		socket.game.nextMove = socket.game.nextMove === 'X' ? 'O' : 'X'
-		socket.game.markModified('board') //mongoose method to let db know the array changed
-		const result = winner(socket.game.board)
-
-		if(result) {
-			socket.game.nextMove = undefined
-			socket.game.result = result
-		}
-
-		socket.game.save().then((game) => {
-			socket.emit('move made', game)
-		})
-	})
+	socket.on('make move', move => nextMove(move, socket))
 
 	console.log(`Socket connected: ${socket.id}`)
 	socket.on('disconnect', () => {
 		console.log(`Socketed disconnected: ${socket.id}`)
 	})
 })
+
+const nextMove = (move, socket) => {
+    if (isFinished(socket.game) || !isSpaceAvailable(socket.game, move)) {
+      return
+    }
+
+    Promise.resolve()
+      .then(() => setMove(socket.game, move))
+      .then(toggleNextMove)
+      .then(setResult)
+      .then(g => g.save())
+      .then(g => socket.emit('move made', g))
+}
+
+const isFinished = game => !!game.result
+const isSpaceAvailable = (game, move) => !game.board[move.row][move.col]
+const setMove = (game, move) => {
+  game.board[move.row][move.col] = game.nextMove
+  game.markModified('board') // trigger mongoose change detection
+  return game
+}
+const toggleNextMove = game => {
+  game.nextMove = game.nextMove === 'X' ? 'O' : 'X'
+  return game
+}
+const setResult = game => {
+  const result = winner(game.board)
+
+  if (result) {
+    game.nextMove = undefined // mongoose equivalent to: `delete socket.game.nextMove`
+    game.result = result
+  }
+
+  return game
+}
+
+const movesRemaining = (game) => {
+	const POSSIBLE_MOVES = 9
+	const movesMade = '?'
+	
+	return POSSIBLE_MOVES - movesMade
+}
 
 const winner = b => {
   // Rows
