@@ -1,0 +1,13 @@
+doctype
+html
+	head
+		title Tic Tac Toe
+		link(rel='stylesheet', href='/main.css')
+	body
+		h1 Tick Tack Toe
+		.create
+			a(href='/game/create') Start new game
+		a(href='/game') Join a game
+			.join
+		script(src='/socket.io/socket.io.js')
+		script(src='./main.js')

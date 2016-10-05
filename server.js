@@ -17,7 +17,17 @@ app.set('view engine', 'pug')
 app.use(express.static('public'))
 
 app.get('/', (req, res) => {
-	res.render('index')
+	res.render('home')
+})
+app.get('/game', (req, res) => {
+	Game.find().then(games => res.render('index', {games}))
+})
+app.get('/game/create', (req, res) => {
+	// create game and redirect
+	// res.redirect()
+})
+app.get('/game/:id', (req, res) => {
+
 })
 
 mongoose.Promise = Promise
