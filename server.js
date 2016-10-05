@@ -31,7 +31,8 @@ const Game = mongoose.model('Game', {
 		[String, String, String],
 		[String, String, String],
 	],
-	nextMove: String
+	nextMove: String,
+	result: String,
 })
 
 io.on('connect', (socket) => {
