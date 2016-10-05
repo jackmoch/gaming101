@@ -6,7 +6,6 @@ const board = document.querySelector('.board')
 const status = document.querySelector('.status')
 
 const renderStatus = game => {
-	console.log(game.result)
   if (game.result === 'Tie') {
     return status.innerText = "It's a tie!"
   }
